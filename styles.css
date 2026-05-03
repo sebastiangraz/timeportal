@@ -1,0 +1,97 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+  background: #141414;
+  color: #e8e8e8;
+  user-select: none;
+}
+
+main {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+}
+
+.hint {
+  margin: 4px 0 8px;
+  font-size: 11px;
+  color: #888;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+input, select {
+  padding: 8px 10px;
+  font-size: 14px;
+  background: #1f1f1f;
+  color: #e8e8e8;
+  border: 1px solid #2e2e2e;
+  border-radius: 4px;
+  outline: none;
+  font-family: inherit;
+}
+
+input:focus, select:focus {
+  border-color: #5a8dff;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+button {
+  flex: 1;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  background: #2a2a2a;
+  color: #e8e8e8;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: #353535;
+}
+
+#start:not(:disabled) {
+  background: #3a5cdc;
+  border-color: #4a6ce8;
+}
+
+#start:not(:disabled):hover {
+  background: #4a6ce8;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+#status {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #888;
+  min-height: 16px;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+}
