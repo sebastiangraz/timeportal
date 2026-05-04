@@ -46,8 +46,7 @@ select {
   font-size: 14px;
   background: #1f1f1f;
   color: #e8e8e8;
-  border: 1px solid #2e2e2e;
-  border-radius: 4px;
+  border: 0;
   outline: none;
   font-family: inherit;
 }
@@ -70,9 +69,8 @@ button {
   font-weight: 500;
   background: #2a2a2a;
   color: #e8e8e8;
-  border: 1px solid #3a3a3a;
-  border-radius: 4px;
   cursor: pointer;
+  border: none;
 }
 
 button:hover:not(:disabled) {
