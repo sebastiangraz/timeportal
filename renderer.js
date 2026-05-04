@@ -88,3 +88,11 @@ startBtn.addEventListener('click', async () => {
 });
 
 stopBtn.addEventListener('click', () => stopLoop('Stopped.'));
+
+window.api.onCssChanged?.(() => {
+  for (const link of document.querySelectorAll('link[rel="stylesheet"]')) {
+    const url = new URL(link.href);
+    url.searchParams.set('t', Date.now());
+    link.href = url.toString();
+  }
+});

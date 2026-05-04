@@ -1,49 +1,56 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'" />
-  <title>TimeTravel</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <main>
-    <header>
-      <h1>TimeTravel</h1>
-      <p class="hint">Run as Administrator. Disable Windows internet time sync for best results.</p>
-    </header>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'self' 'unsafe-inline'"
+    />
+    <title>TimePortal</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>TimePortal</h1>
+        <p class="hint">
+          Run as Administrator. Disable Windows internet time sync for best
+          results.
+        </p>
+      </header>
 
-    <label>
-      <span>Date</span>
-      <input type="date" id="date" />
-    </label>
+      <label>
+        <span>Date</span>
+        <input type="date" id="date" />
+      </label>
 
-    <label>
-      <span>Time</span>
-      <input type="time" id="time" step="60" />
-    </label>
+      <label>
+        <span>Time</span>
+        <input type="time" id="time" step="60" />
+      </label>
 
-    <label>
-      <span>Loop</span>
-      <select id="loop">
-        <option value="60">1 hour</option>
-        <option value="30">30 minutes</option>
-        <option value="custom">Custom…</option>
-      </select>
-    </label>
+      <label>
+        <span>Loop</span>
+        <select id="loop">
+          <option value="60">1 hour</option>
+          <option value="30">30 minutes</option>
+          <option value="custom">Custom…</option>
+        </select>
+      </label>
 
-    <label id="customWrap" hidden>
-      <span>Custom (minutes)</span>
-      <input type="number" id="custom" min="1" value="30" />
-    </label>
+      <label id="customWrap" hidden>
+        <span>Custom (minutes)</span>
+        <input type="number" id="custom" min="1" value="30" />
+      </label>
 
-    <div class="row">
-      <button id="start">Start loop</button>
-      <button id="stop" disabled>Stop</button>
-    </div>
+      <div class="row">
+        <button id="start">Start loop</button>
+        <button id="stop" disabled>Stop</button>
+      </div>
+      <a href="https://d2emu.com/tz-sp" target="_blank">Terror Zone Tracker</a>
 
-    <p id="status"></p>
-  </main>
-  <script src="renderer.js"></script>
-</body>
+      <p id="status"></p>
+    </main>
+    <script src="renderer.js"></script>
+  </body>
 </html>

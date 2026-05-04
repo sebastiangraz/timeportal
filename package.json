@@ -1,5 +1,5 @@
 {
-  "name": "timetravel",
+  "name": "timeportal",
   "version": "0.1.0",
   "description": "Loops Windows system time within a chosen window. Built for Diablo 2 terror zones.",
   "main": "main.js",
