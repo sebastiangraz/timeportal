@@ -4,7 +4,7 @@
   "description": "Loops Windows system time within a chosen window. Built for Diablo 2 terror zones.",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "dev": "electron ."
   },
   "devDependencies": {
     "electron": "^33.0.0"
