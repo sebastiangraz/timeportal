@@ -3,6 +3,20 @@ const path = require("path");
 const fs = require("fs");
 const { exec } = require("child_process");
 
+/** Window / taskbar icon. Prefer `assets/icon.ico` on Windows; `icon.png` is used as fallback / on Linux. */
+function resolveWindowIcon() {
+  const ico = path.join(__dirname, "assets", "icon.ico");
+  const png = path.join(__dirname, "assets", "icon.png");
+  if (process.platform === "win32") {
+    if (fs.existsSync(ico)) return ico;
+    if (fs.existsSync(png)) return png;
+    return undefined;
+  }
+  if (fs.existsSync(png)) return png;
+  if (fs.existsSync(ico)) return ico;
+  return undefined;
+}
+
 function setSystemTime(formatted) {
   return new Promise((resolve, reject) => {
     const cmd = `powershell.exe -NoProfile -Command "Set-Date -Date '${formatted}'"`;
@@ -18,6 +32,7 @@ function createWindow() {
     width: 420,
     height: 572,
     resizable: false,
+    icon: resolveWindowIcon(),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,

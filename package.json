@@ -4,9 +4,24 @@
   "description": "Loops Windows system time within a chosen window. Built for Diablo 2 terror zones.",
   "main": "main.js",
   "scripts": {
-    "dev": "electron ."
+    "dev": "electron .",
+    "build": "electron-builder"
   },
   "devDependencies": {
-    "electron": "^33.0.0"
+    "electron": "^33.0.0",
+    "electron-builder": "^26.8.1"
+  },
+  "build": {
+    "appId": "com.timeportal.app",
+    "productName": "Timeportal",
+    "win": {
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "icon": "assets/icon.icns"
+    },
+    "linux": {
+      "icon": "assets/icon.png"
+    }
   }
 }
