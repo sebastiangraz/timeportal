@@ -48,19 +48,26 @@ async function tick() {
     try {
       await jumpToStart();
     } catch (err) {
-      stopLoop(`Error during loop: ${err.message}`);
+      await stopLoop(`Error during loop: ${err.message}`);
       return;
     }
   }
   statusEl.textContent = `Looping ${formatTime(startMs)} → ${formatTime(endMs)} · now ${formatTime(Date.now())}`;
 }
 
-function stopLoop(message) {
+async function stopLoop(message) {
   if (timer) clearInterval(timer);
   timer = null;
   startBtn.disabled = false;
   stopBtn.disabled = true;
-  if (message) statusEl.textContent = message;
+
+  try {
+    await window.api.restoreAutomaticTime();
+    if (message) statusEl.textContent = message;
+  } catch (err) {
+    const syncMsg = `Could not re-enable automatic time: ${err.message}. Toggle "Set time automatically" in Windows Settings or run as Administrator.`;
+    statusEl.textContent = message ? `${message} ${syncMsg}` : syncMsg;
+  }
 }
 
 startBtn.addEventListener('click', async () => {
@@ -75,6 +82,13 @@ startBtn.addEventListener('click', async () => {
   endMs = startMs + getLoopMinutes() * 60_000;
 
   try {
+    await window.api.snapshotW32Time();
+  } catch (err) {
+    statusEl.textContent = `Could not read time sync settings: ${err.message}. Run as Administrator.`;
+    return;
+  }
+
+  try {
     await jumpToStart();
   } catch (err) {
     statusEl.textContent = `Failed to set time: ${err.message}. Run as Administrator.`;
@@ -87,7 +101,9 @@ startBtn.addEventListener('click', async () => {
   tick();
 });
 
-stopBtn.addEventListener('click', () => stopLoop('Stopped.'));
+stopBtn.addEventListener('click', async () => {
+  await stopLoop('Stopped.');
+});
 
 window.api.onCssChanged?.(() => {
   for (const link of document.querySelectorAll('link[rel="stylesheet"]')) {

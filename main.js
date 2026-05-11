@@ -17,14 +17,76 @@ function resolveWindowIcon() {
   return undefined;
 }
 
-function setSystemTime(formatted) {
+function execPowerShell(script) {
+  const encoded = Buffer.from(script, "utf16le").toString("base64");
   return new Promise((resolve, reject) => {
-    const cmd = `powershell.exe -NoProfile -Command "Set-Date -Date '${formatted}'"`;
-    exec(cmd, (err, _stdout, stderr) => {
-      if (err) reject(new Error(stderr.trim() || err.message));
-      else resolve();
-    });
+    exec(
+      `powershell.exe -NoProfile -EncodedCommand ${encoded}`,
+      { maxBuffer: 1024 * 1024 },
+      (err, stdout, stderr) => {
+        if (err) reject(new Error(stderr.trim() || err.message));
+        else resolve(String(stdout).trim());
+      },
+    );
   });
+}
+
+function setSystemTime(formatted) {
+  return execPowerShell(`Set-Date -Date '${formatted.replace(/'/g, "''")}'`);
+}
+
+/** Parsed W32Time snapshot; persisted in-memory until restore clears it */
+let savedW32TimeSnapshot = null;
+
+async function snapshotW32TimeFromRegistry() {
+  if (process.platform !== "win32") return;
+  const script = `$p = Get-ItemProperty -LiteralPath 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\W32Time\\Parameters' -EA SilentlyContinue
+$n = Get-ItemProperty -LiteralPath 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\W32Time\\TimeProviders\\NtpClient' -EA SilentlyContinue
+$o = [ordered]@{ Type = $null; NtpClientEnabled = $null }
+if ($p -and $p.PSObject.Properties.Name -contains 'Type') { $o.Type = [string]$p.Type }
+if ($null -ne $n -and $n.PSObject.Properties.Name -contains 'Enabled') { $o.NtpClientEnabled = [int]$n.Enabled }
+$o | ConvertTo-Json -Compress`;
+  const out = await execPowerShell(script);
+  try {
+    const data = JSON.parse(out);
+    const type = data.Type ?? data.type ?? null;
+    const ena = data.NtpClientEnabled ?? data.ntpClientEnabled ?? null;
+    const hasAnything =
+      (type != null && String(type).trim().length > 0) || ena != null;
+    savedW32TimeSnapshot = hasAnything
+      ? { type, ntpClientEnabled: ena }
+      : null;
+  } catch {
+    savedW32TimeSnapshot = null;
+  }
+}
+
+async function restoreAutomaticTimeAfterLoop() {
+  if (process.platform !== "win32") return;
+  const snap = savedW32TimeSnapshot;
+  const type =
+    snap && snap.type != null && String(snap.type).length > 0
+      ? String(snap.type).replace(/'/g, "''")
+      : "NTP";
+  const shouldSetEnabled =
+    snap == null || snap.ntpClientEnabled != null;
+  const enabled =
+    snap != null && snap.ntpClientEnabled != null
+      ? Number(snap.ntpClientEnabled)
+      : 1;
+  let script = `$ErrorActionPreference = 'Stop'
+Set-ItemProperty -LiteralPath 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\W32Time\\Parameters' -Name 'Type' -Value '${type}' -Type String`;
+  if (shouldSetEnabled) {
+    script += `
+Set-ItemProperty -LiteralPath 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\W32Time\\TimeProviders\\NtpClient' -Name 'Enabled' -Value ${enabled} -Type DWord`;
+  }
+  script += `
+Restart-Service -Name 'w32time' -Force
+$ErrorActionPreference = 'Continue'
+try { & $env:SystemRoot\\System32\\w32tm.exe /resync /force 2>&1 | Out-Null } catch {}
+exit 0`;
+  await execPowerShell(script);
+  savedW32TimeSnapshot = null;
 }
 
 function createWindow() {
@@ -82,6 +144,14 @@ function createWindow() {
 
 ipcMain.handle("set-system-time", async (_e, formatted) => {
   await setSystemTime(formatted);
+});
+
+ipcMain.handle("w32time-snapshot", async () => {
+  await snapshotW32TimeFromRegistry();
+});
+
+ipcMain.handle("w32time-restore", async () => {
+  await restoreAutomaticTimeAfterLoop();
 });
 
 app.whenReady().then(createWindow);
